@@ -9,6 +9,8 @@ class FacesDetector:
     self.__faces_cascade = cv.CascadeClassifier('./detectors/frontal_face_alt.xml')
     # https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
     self.__eyes_cascade = cv.CascadeClassifier('./detectors/eye.xml')
+    # https://github.com/opencv/opencv/blob/master/data/haarcascades/haarcascade_smile.xml
+    self.__smiles_cascade = cv.CascadeClassifier('./detectors/smile.xml')
   
   def detect(self, frame):
     """Detects faces using the Cascade classifier
@@ -37,6 +39,12 @@ class FacesDetector:
             ...
             (eNx, eNy, eNw, eNh),
           ], // Eyes bounds
+          'smiles': [
+            (s1x, s1y, s1w, s1h),
+            (s2x, s2y, s2w, s2h),
+            ...
+            (sNx, sNy, sNw, sNh),
+          ], // Smiles bounds
         }
     """    
     return self.__display_faces(
@@ -66,6 +74,15 @@ class FacesDetector:
           (0, 255, 0),
           2,
         )
+
+      for (ex, ey, ew, eh) in item['smiles']:
+        cv.rectangle(
+          roi,
+          (ex, ey),
+          (ex + ew, ey + eh),
+          (0, 0, 255),
+          2,
+        )
   
     return frame
 
@@ -78,6 +95,7 @@ class FacesDetector:
       result.append({
         'bounds': (x, y, w, h),
         'eyes': self.__eyes_cascade.detectMultiScale(gray_image[y:y+h, x:x+w]),
+        'smiles': self.__smiles_cascade.detectMultiScale(gray_image[y:y+h, x:x+w], 2, 20),
       })
 
     return result
