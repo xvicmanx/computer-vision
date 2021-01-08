@@ -54,37 +54,28 @@ class FacesDetector:
   
   def __display_faces(self, items, frame):
     for item in items:
-      (x, y, w, h) = item["bounds"]
+      (x, y, w, h) = item['bounds']
 
-      cv.rectangle(
-        frame,
-        (x, y),
-        (x + w, y + h),
-        (255, 0, 0),
-        2,
-      )
-
+      self.__draw_region(frame, item['bounds'], (255, 0, 0))
       roi = frame[y:y+h, x:x+w]
 
-      for (ex, ey, ew, eh) in item['eyes']:
-        cv.rectangle(
-          roi,
-          (ex, ey),
-          (ex + ew, ey + eh),
-          (0, 255, 0),
-          2,
-        )
+      for eye_bounds in item['eyes']:
+        self.__draw_region(roi, eye_bounds, (0, 255, 0))
 
-      for (ex, ey, ew, eh) in item['smiles']:
-        cv.rectangle(
-          roi,
-          (ex, ey),
-          (ex + ew, ey + eh),
-          (0, 0, 255),
-          2,
-        )
+      for smile_bounds in item['smiles']:
+        self.__draw_region(roi, smile_bounds, (0, 0, 255))
   
     return frame
+
+  def __draw_region(self, target, bounds, color):
+    (x, y, w, h) = bounds
+    cv.rectangle(
+      target,
+      (x, y),
+      (x + w, y + h),
+      color,
+      2,
+    )
 
   def __detect_faces(self, frame):
     gray_image = cv.equalizeHist(cv.cvtColor(frame, cv.COLOR_BGR2GRAY))
